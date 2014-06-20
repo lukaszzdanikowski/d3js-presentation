@@ -43,25 +43,198 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Reveal.js</h1>
-					<h3>HTML Presentations Made Easy</h3>
+					<h1>D3.js</h1>
+					<h3>Data-Driven Documents</h3>
 					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
+						<small>Created by <a href="http://github.com/lukaszzdanikowski">Łukasz Zdanikowski</a></small>
 					</p>
 				</section>
 
 				<section>
-					<h2>Heads Up</h2>
+					<h2>Czym jest D3.js</h2>
 					<p>
-						reveal.js is a framework for easily creating beautiful presentations using HTML. You'll need a browser with
-						support for CSS 3D transforms to see it in its full glory.
+						D3.js jest biblioteką ułatwiającą tworzenie wykresów skupiającą się na przetwarzaniu danych a nie na ułożeniu elementów na wykresie. 
+					</p>
+					<p>
+					    Pozwala powiązać dowolne dane z drzewem DOM i przekstałcać całość w dowolny sposób. D3 potrafi wygenerować z tablicy liczb HTML-ową tabelkę, jak również interaktywny SVG z wykresem słupkowym z płynnymi przejściami i interakcjami. 
 					</p>
 
 					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+						Coś jak gnuplot tylko ze znacznie przyjemniejszym interfejsem.
 					</aside>
 				</section>
 
+                <section>
+                    <pre><code data-trim contenteditable id="datasetSimple" class="json">
+[{
+    "miejsce": "1",
+    "xx": "16036468",
+    "tytul": "Tajemnica Filomeny",
+    "cnt": "63"
+}, {
+    "miejsce": "2",
+    "xx": "12147754",
+    "tytul": "Sponsoring",
+    "cnt": "61"
+}, {
+    "miejsce": "3",
+    "xx": "15937681",
+    "tytul": "Pod Mocnym Aniolem",
+    "cnt": "53"
+}]
+                    </code></pre>
+                </section>
+                
+                <section data-state="visualizeParagraphs">
+                    <h2>Data binding</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeParagraphs"] .result')
+    .selectAll("p")
+    .data(dataset).enter()
+        .append("p")
+            .text("Nowy paragraf!");
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Data binding</h2>
+                    <p>
+                        Z każdym elementen &lt;p&gt; związany zostaje obiekt __data__ z tablicy z danymi.
+                    </p>
+                    
+                </section>
+                
+                <section data-state="visualizeParagraphs2">
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeParagraphs2"] .result')
+    .selectAll("p")
+    .data(dataset).enter()
+        .append("p")
+            .text(function(data) { return 'tytuł: ' + data.tytul;})
+            .style("color", function(data) { return colorScale(data.miejsce);});
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
+                <section data-state="visualizeParagraphs3">
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeParagraphs3"] .result')
+    .selectAll("p")
+    .data(dataset).enter()
+        .append("div")
+            .text(function(data) { return data.tytul;})
+            .attr("class", "bar")
+            .style({
+                "background-color": function(data) { return colorScale(data.miejsce); },
+                "width": function(data) { return (data.cnt * 10 + "px"); },
+                "height": (100 / dataset.length) + "px",
+                "font-size": "14px"
+            });
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
+                <section data-state="visualizeTable">
+                    <h2>HTML Table</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeTable"] .result')
+    .append("table")
+        .selectAll("tr")
+        .data(dataset).enter()
+        .append("tr")
+            .selectAll("td")
+            .data(function(data) {return [data.tytul, data.cnt];}).enter()
+                .append("td")
+                    .style({"border": "1px solid #ffffff"})
+                    .text(function(data) { return data;});
+    
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
+                <section data-state="visualizeSVG">
+                    <h2>SVG</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeSVG"] .result')
+    .append("svg").attr({"width": barWidth, "height": barHeight})
+        .selectAll("rect")
+        .data(dataset).enter()
+        .append("rect").attr({
+            "x": function(d, i) { return i*(barWidth / dataset.length); },
+            "y": function(d) { return barHeight - d.cnt ; },
+            "width": (barWidth / dataset.length) - barMargin,
+            "height": barHeight,
+            "fill": function(d, i) { return colorScale(i); }
+        });
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
+                <section data-state="visualizeSVG2">
+                    <h2>SVG - Bar Chart</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeSVG2"] .result')
+    .append("svg").attr({"width": barWidth, "height": barHeight})
+        .selectAll("rect")
+        .data(dataset).enter()
+        .append("rect").attr({
+            "x": function(d, i) { return i*(barWidth / dataset.length); },
+            "y": function(d) { return barHeight - d.cnt ; },
+            "width": (barWidth / dataset.length) - barMargin,
+            "height": barHeight,
+            "fill": function(d, i) { return colorScale(i); }
+        });
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+
+                <section data-state="visualizeSVG3">
+                    <h2>SVG - Scatterplot</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+
+d3.select('[data-state="visualizeSVG3"] .result')
+    .append("svg").attr({"width": scatterWidth, "height": scatterHeight})
+        .selectAll("circle")
+        .data(dataset).enter()
+        .append("circle").attr({
+            "cx": function(d, i) { return i*(scatterWidth / dataset.length) + d.cnt / 2; },
+            "cy": function(d) { return scatterHeight - d.cnt / 2 ; },
+            "r": function(d) { return d.cnt / 2; },
+            "height": scatterHeight,
+            "fill": function(d, i) { return colorScale(i); }
+        });
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
+                
 				<!-- Example of nested vertical slides -->
 				<section>
 					<section>
@@ -350,7 +523,7 @@ function linkify( selector ) {
 
 				<section>
 					<h1>THE END</h1>
-					<h3>BY Hakim El Hattab / hakim.se</h3>
+					<h3>BY Łukasz Zdanikowski</h3>
 				</section>
 
 			</div>
@@ -359,7 +532,7 @@ function linkify( selector ) {
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.min.js"></script>
-
+        <script src="js/d3.min.js"></script>
 		<script>
 
 			// Full list of configuration options available here:
@@ -387,8 +560,8 @@ function linkify( selector ) {
 					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
 				]
 			});
-
+            
 		</script>
-
+        <script src="js/main.js"></script>
 	</body>
 </html>
