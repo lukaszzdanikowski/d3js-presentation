@@ -235,6 +235,28 @@ d3.select('[data-state="visualizeSVG3"] .result')
                     </div>
                 </section>
                 
+                <section data-state="visualizeSVG4">
+                    <h2>Scales</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+window.xScale = d3.scale.ordinal().domain(datasetRange)
+    .rangeBands([0, scatterWidth], 0, dataset[0].cnt / 2 / scatterWidth);
+d3.select('[data-state="visualizeSVG4"] .result')
+    .append("svg").attr({"width": scatterWidth, "height": scatterHeight})
+        .selectAll("circle")
+        .data(dataset).enter()
+        .append("circle").attr({
+            "cx": function(d, i) { return xScale(d.miejsce) + d.cnt / 2; },
+            "cy": function(d) { return scatterHeight - d.cnt / 2 ; },
+            "r": function(d) { return d.cnt / 2; },
+            "height": scatterHeight,
+            "fill": function(d, i) { return colorScale(i); }
+        });
+
+                    </code></pre>
+                    <div class="result">
+                        
+                    </div>
+                </section>
 				
 
 				<section>

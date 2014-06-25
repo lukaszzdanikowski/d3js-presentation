@@ -82,3 +82,17 @@ Reveal.addEventListener('visualizeSVG3', function(ev) {
    window.scatterWidth = 600;
    window.scatterMargin = 2;
 });
+
+Reveal.addEventListener('visualizeSVG4', function(ev) {
+   var httpRequest = new XMLHttpRequest();
+   httpRequest.onload = function(ev) {
+       window.dataset = JSON.parse(this.responseText);
+       window.datasetRange = dataset.map(function(el) { return parseInt(el.miejsce, 10); });
+   };
+   httpRequest.open('GET', './data/top50.json');
+   httpRequest.send();
+   window.colorScale = d3.scale.category20c();
+   window.scatterHeight = 100;
+   window.scatterWidth = 600;
+   window.scatterMargin = 2;
+});
