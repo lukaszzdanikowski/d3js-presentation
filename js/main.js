@@ -32,7 +32,11 @@ Reveal.addEventListener('visualizeParagraphs', function(ev) {
 Reveal.addEventListener('visualizeParagraphs2', function(ev) {
    var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
    window.dataset = dataset;
-   window.colorScale = d3.scale.category20c();
+});
+
+Reveal.addEventListener('visualizeParagraphs2b', function(ev) {
+   var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
+   window.dataset = dataset;
 });
 
 Reveal.addEventListener('visualizeParagraphs3', function(ev) {
@@ -52,24 +56,69 @@ Reveal.addEventListener('visualizeSVG', function(ev) {
    window.dataset = dataset;
    window.colorScale = d3.scale.category20c();
    window.barHeight = 100;
-   window.barHeight = 100;
    window.barWidth = 600;
    window.barMargin = 2;
 });
 
 Reveal.addEventListener('visualizeSVG2', function(ev) {
-   var httpRequest = new XMLHttpRequest();
-   httpRequest.onload = function(ev) {
-       window.dataset = JSON.parse(this.responseText);
-   };
-   httpRequest.open('GET', './data/top50.json');
-   httpRequest.send();
+   var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
+   window.dataset = dataset;
    window.colorScale = d3.scale.category20c();
-   window.barHeight = 100;
+   window.svgWidth = 600;
+   window.svgHeight = 200;
+   window.barHeight = 30;
    window.barWidth = 600;
    window.barMargin = 2;
 });
 
+Reveal.addEventListener('visualizeSVG2b', function(ev) {
+   var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
+   window.dataset = dataset;
+   window.colorScale = d3.scale.category20c();
+   window.svgWidth = 600;
+   window.svgHeight = 200;
+   window.barHeight = 30;
+   window.barWidth = 600;
+   window.barMargin = 2;
+});
+
+Reveal.addEventListener('visualizeSVG2c', function(ev) {
+   var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
+   window.dataset = dataset;
+   window.colorScale = d3.scale.category20c();
+   window.svgWidth = 600;
+   window.svgHeight = 200;
+   window.barHeight = 30;
+   window.barWidth = 600;
+   window.barMargin = 2;
+});
+
+Reveal.addEventListener('visualizeSVG2d', function(ev) {
+   var dataset = JSON.parse(document.getElementById('datasetSimple').innerText);
+   window.dataset = dataset;
+   var httpRequest = new XMLHttpRequest();
+   httpRequest.onload = function(ev) {
+       window.dataset2 = JSON.parse(this.responseText);
+   };
+   httpRequest.open('GET', './data/top50.json');
+   httpRequest.send();
+   
+   var httpRequest3 = new XMLHttpRequest();
+   httpRequest3.onload = function(ev) {
+       window.dataset3 = JSON.parse(this.responseText);
+   };
+   httpRequest3.open('GET', './data/top51.json');
+   httpRequest3.send();
+   
+   window.colorScale = d3.scale.category20c();
+   window.svgWidth = 600;
+   window.svgHeight = 200;
+   window.barHeight = 30;
+   window.barWidth = 600;
+   window.barMargin = 2;
+});
+
+/*
 Reveal.addEventListener('visualizeSVG3', function(ev) {
    var httpRequest = new XMLHttpRequest();
    httpRequest.onload = function(ev) {
@@ -96,3 +145,4 @@ Reveal.addEventListener('visualizeSVG4', function(ev) {
    window.scatterWidth = 600;
    window.scatterMargin = 2;
 });
+*/

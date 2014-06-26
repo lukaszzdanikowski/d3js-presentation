@@ -34,6 +34,28 @@
 		<!--[if lt IE 9]>
 		<script src="lib/js/html5shiv.js"></script>
 		<![endif]-->
+		<style>
+		    .reveal .result {
+		        background-color: #fff;
+		        color: #000;
+		        padding: 5px 0;
+		    }
+		    .reveal .result:empty {
+		        padding: 0;
+		    }
+		    
+		    .reveal .axis text {
+                font: 10px sans-serif;
+            }
+            
+            .reveal .axis path,
+            .reveal .axis line {
+                fill: none;
+                stroke: #000;
+                shape-rendering: crispEdges;
+            }
+		    
+		</style>
 	</head>
 
 	<body>
@@ -65,6 +87,7 @@
 				</section>
 
                 <section>
+                    <h3>dataset</h3>
                     <pre><code data-trim contenteditable id="datasetSimple" class="json">
 [{
     "miejsce": "1",
@@ -88,8 +111,7 @@
                 <section data-state="visualizeParagraphs">
                     <h2>Data binding</h2>
                     <pre><code data-trim contenteditable class="javascript">
-
-d3.select('[data-state="visualizeParagraphs"] .result')
+var result = d3.select('[data-state="visualizeParagraphs"] .result')
     .selectAll("p")
     .data(dataset).enter()
         .append("p")
@@ -110,107 +132,394 @@ d3.select('[data-state="visualizeParagraphs"] .result')
                 </section>
                 
                 <section data-state="visualizeParagraphs2">
+                    <h2>Transformajce danych</h2>
                     <pre><code data-trim contenteditable class="javascript">
-
 d3.select('[data-state="visualizeParagraphs2"] .result')
     .selectAll("p")
     .data(dataset).enter()
         .append("p")
-            .text(function(data) { return 'tytuł: ' + data.tytul;})
-            .style("color", function(data) { return colorScale(data.miejsce);});
+            .text(function(data) { return 'tytuł: ' + data.tytul; });
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
+                </section>
+                
+                <section data-state="visualizeParagraphs2b">
+                    <h2>Transformajce i skale</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+var colorScale = d3.scale.category20c();
+d3.select('[data-state="visualizeParagraphs2b"] .result')
+    .selectAll("p")
+    .data(dataset).enter()
+        .append("p")
+            .text(function(data) { return 'tytuł: ' + data.tytul;})
+            .style("color", function(data, idx) { return colorScale(idx); });
+
+                    </code></pre>
+                    <div class="result"></div>
                 </section>
                 
                 <section data-state="visualizeParagraphs3">
+                    <h2>Transformajce danych c. d.</h2>
                     <pre><code data-trim contenteditable class="javascript">
 
 d3.select('[data-state="visualizeParagraphs3"] .result')
-    .selectAll("p")
+    .selectAll("div")
     .data(dataset).enter()
-        .append("div")
+        .append("div").attr("class", "bar")
             .text(function(data) { return data.tytul;})
-            .attr("class", "bar")
             .style({
                 "background-color": function(data) { return colorScale(data.miejsce); },
                 "width": function(data) { return (data.cnt * 10 + "px"); },
                 "height": (100 / dataset.length) + "px",
-                "font-size": "14px"
+                "font-size": "18px"
             });
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
                 </section>
                 
                 <section data-state="visualizeTable">
-                    <h2>HTML Table</h2>
+                    <h2>Tabelki</h2>
                     <pre><code data-trim contenteditable class="javascript">
 
-d3.select('[data-state="visualizeTable"] .result')
-    .append("table")
-        .selectAll("tr")
+var table = d3.select('[data-state="visualizeTable"] .result')
+        .append("table"),
+    thead = table.append("thead"),
+    tbody = table.append("tbody");
+
+thead
+    .append("tr")
+        .selectAll("th")
+            .data(Object.keys(dataset[0])).enter()
+                .append("th")
+                    .style({"border": "1px solid #000"})
+                    .text(function(d) {return d;});
+var rows = tbody
+    .selectAll("tr")
         .data(dataset).enter()
-        .append("tr")
-            .selectAll("td")
-            .data(function(data) {return [data.tytul, data.cnt];}).enter()
-                .append("td")
-                    .style({"border": "1px solid #ffffff"})
-                    .text(function(data) { return data;});
-    
+            .append("tr");
+rows
+    .selectAll("td")
+        .data(function(data) {
+            var d = []; 
+            for(var i in data) d.push(data[i]); 
+            return d;
+        }).enter()
+            .append("td")
+                .style({"border": "1px solid #000"})
+                .text(function(data) { return data;});
+
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
                 </section>
                 
                 <section data-state="visualizeSVG">
                     <h2>SVG</h2>
                     <pre><code data-trim contenteditable class="javascript">
 
-d3.select('[data-state="visualizeSVG"] .result')
-    .append("svg").attr({"width": barWidth, "height": barHeight})
-        .selectAll("rect")
-        .data(dataset).enter()
-        .append("rect").attr({
+var svg = d3.select('[data-state="visualizeSVG"] .result')
+    .append("svg").attr({"width": barWidth, "height": barHeight});
+    
+svg
+    .selectAll("rect")
+    .data(dataset)
+    .enter().append("rect")
+        .attr({
             "x": function(d, i) { return i*(barWidth / dataset.length); },
-            "y": function(d) { return barHeight - d.cnt ; },
+            "y": function(d) { return barHeight - d.cnt; },
             "width": (barWidth / dataset.length) - barMargin,
-            "height": barHeight,
+            "height": function(d) { return d.cnt; },
             "fill": function(d, i) { return colorScale(i); }
         });
+svg
+    .selectAll("text")
+    .data(dataset)
+    .enter().append("text")
+        .attr({ 
+            "x": function(d, i) { return i*(barWidth / dataset.length); },
+            "y": function(d) { return barHeight - d.cnt; } 
+        })
+        .text(function(d) { return d.tytul; })
+        .style({"font-size": "20px"});
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
                 </section>
                 
                 <section data-state="visualizeSVG2">
                     <h2>SVG - Bar Chart</h2>
                     <pre><code data-trim contenteditable class="javascript">
+var yScale = d3.scale.linear()
+    .domain([0, d3.max(dataset.map(function(d) { return d.cnt; } ))])
+    .range([svgHeight, 0]);
 
-d3.select('[data-state="visualizeSVG2"] .result')
-    .append("svg").attr({"width": barWidth, "height": barHeight})
-        .selectAll("rect")
-        .data(dataset).enter()
-        .append("rect").attr({
-            "x": function(d, i) { return i*(barWidth / dataset.length); },
-            "y": function(d) { return barHeight - d.cnt ; },
-            "width": (barWidth / dataset.length) - barMargin,
-            "height": barHeight,
-            "fill": function(d, i) { return colorScale(i); }
+var xScale = d3.scale.ordinal()
+    .rangeRoundBands([0, svgWidth], .1)
+    .domain(dataset.map(function(d) { return d.tytul; }));
+
+var svg = d3.select('[data-state="visualizeSVG2"] .result')
+        .append("svg").attr({"width": svgWidth, "height": svgHeight});
+
+var barWidth = svgWidth / dataset.length;
+
+var bar = svg.selectAll("g")
+        .data(dataset)
+        .enter().append("g")
+            .attr("transform", function(d, i) { return "translate(" + xScale(d.tytul) + ", 0)";});
+            
+bar
+    .append("rect").attr({
+        "y": function(d, i) { return yScale(d.cnt); },
+        "width": xScale.rangeBand(),
+        "height": function(d, i) { return svgHeight - yScale(d.cnt); },
+        "fill": function(d, i) { return colorScale(i); }
+    });
+
+bar
+    .append("text")
+        .attr({ 
+            "x": 2,
+            "y": function(d, i) { return yScale(d.cnt) + 3; },
+            "dy": ".75em"
+        })
+        .text(function(d) { return d.tytul; })
+        .style({"font-size": "20px"});
+                    </code></pre>
+                    <div class="result"></div>
+                </section>
+                
+                <section data-state="visualizeSVG2b">
+                    <h2>SVG - Bar Chart</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+var margin = {top: 20, right: 30, bottom: 30, left: 40},
+    width = svgWidth - margin.left - margin.right,
+    height = svgHeight - margin.top - margin.bottom;
+
+var svg = d3.select('[data-state="visualizeSVG2b"] .result')
+    .append("svg")
+        .attr({
+            "width": width + margin.left + margin.right,
+            "height": height + margin.top + margin.bottom
+        })
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var barWidth = width / dataset.length;
+
+var yScale = d3.scale.linear()
+    .domain([0, d3.max(dataset.map(function(d) { return d.cnt; } ))])
+    .range([height, 0]);
+
+var xScale = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1)
+    .domain(dataset.map(function(d) { return d.tytul; }));
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+var bar = svg.selectAll(".bar")
+    .data(dataset)
+    .enter().append("g")
+        .attr({
+            "transform": function(d, i) { return "translate(" + xScale(d.tytul) + ", 0)";},
+            "class": "bar"
         });
+            
+bar
+    .append("rect").attr({
+        "y": function(d, i) { return yScale(d.cnt); },
+        "width": xScale.rangeBand(),
+        "height": function(d, i) { return height - yScale(d.cnt); },
+        "fill": function(d, i) { return colorScale(i); }
+    });
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
+                </section>
+                
+                <section data-state="visualizeSVG2c">
+                    <h2>SVG - Bar Chart</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+var margin = {top: 20, right: 30, bottom: 30, left: 40},
+    width = svgWidth - margin.left - margin.right,
+    height = svgHeight - margin.top - margin.bottom;
+
+var svg = d3.select('[data-state="visualizeSVG2c"] .result')
+    .append("svg")
+        .attr({
+            "width": width + margin.left + margin.right,
+            "height": height + margin.top + margin.bottom
+        })
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var barWidth = width / dataset.length;
+
+var yScale = d3.scale.linear()
+    .domain([0, d3.max(dataset.map(function(d) { return d.cnt; } ))])
+    .range([height, 0]);
+
+var xScale = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1)
+    .domain(dataset.map(function(d) { return d.tytul; }));
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left")
+    .ticks(10, "");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Odtworzeń");
+
+var bar = svg.selectAll(".bar")
+    .data(dataset);
+    
+bar.enter().append("g")
+        .attr({
+            "transform": function(d, i) { return "translate(" + xScale(d.tytul) + ", 0)";},
+            "class": "bar",
+            "y" : -20
+        })
+        .style("fill-opacity", 1e-6)
+        .transition()
+        .duration(750)
+        .attr("y", 0)
+        .style("fill-opacity", 1);
+            
+bar
+    .append("rect").attr({
+        "y": function(d, i) { return yScale(d.cnt); },
+        "width": xScale.rangeBand(),
+        "height": function(d, i) { return height - yScale(d.cnt); },
+        "fill": function(d, i) { return colorScale(i); }
+    });
+
+                    </code></pre>
+                    <div class="result"></div>
+                </section>
+<!--
+                <section data-state="visualizeSVG2d">
+                    <h2>SVG - Bar Chart</h2>
+                    <pre><code data-trim contenteditable class="javascript">
+var margin = {top: 20, right: 30, bottom: 30, left: 40},
+    width = svgWidth - margin.left - margin.right,
+    height = svgHeight - margin.top - margin.bottom;
+
+var svg = d3.select('[data-state="visualizeSVG2d"] .result')
+    .append("svg")
+        .attr({
+            "width": width + margin.left + margin.right,
+            "height": height + margin.top + margin.bottom
+        })
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+window.update = function (dataset) {
+var barWidth = width / dataset.length;
+
+var yScale = d3.scale.linear()
+    .domain([0, d3.max(dataset.map(function(d) { return d.cnt; } ))])
+    .range([height, 0]);
+
+var xScale = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1)
+    .domain(dataset.map(function(d) { return d.tytul; }));
+
+var xAxis = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left")
+    .ticks(10, "");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Odtworzeń");
+
+var bar = svg.selectAll(".bar")
+    .data(dataset);
+
+bar
+    .transition()
+    .duration(750);
+
+bar.enter().append("g")
+        .attr({
+            "transform": function(d, i) { return "translate(" + xScale(d.tytul) + ", 0)";},
+            "class": "bar",
+            "y": -60
+        })
+        .style("fill-opacity", 1e-6)
+        .transition()
+        .duration(750)
+        .attr("y", 0)
+        .style("fill-opacity", 1);
+
+bar.exit()
+    .transition()
+    .duration(750)
+    .attr("y", 60)
+    .style("fill-opacity", 1e-6)
+    .remove();
+
+bar
+    .append("rect").attr({
+        "y": function(d, i) { return yScale(d.cnt); },
+        "width": xScale.rangeBand(),
+        "height": function(d, i) { return height - yScale(d.cnt); },
+        "fill": function(d, i) { return colorScale(i); }
+    });
+}
+
+update(dataset);
+
+                    </code></pre>
+                    <div class="result"></div>
                 </section>
 
                 <section data-state="visualizeSVG3">
@@ -230,9 +539,7 @@ d3.select('[data-state="visualizeSVG3"] .result')
         });
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
                 </section>
                 
                 <section data-state="visualizeSVG4">
@@ -253,11 +560,9 @@ d3.select('[data-state="visualizeSVG4"] .result')
         });
 
                     </code></pre>
-                    <div class="result">
-                        
-                    </div>
+                    <div class="result"></div>
                 </section>
-				
+-->
 
 				<section>
 					<h1>THE END</h1>
